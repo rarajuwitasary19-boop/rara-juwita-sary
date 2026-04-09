@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perpustakaan SMKN 1 Gedongtataan</title>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+
+    body {
+      background: linear-gradient(135deg,#667eea,#764ba2);
+      color:#333;
+      min-height:100vh;
+    }
+
+    header {
+      text-align:center;
+      padding:20px;
+      color:white;
+      font-size:24px;
+      font-weight:bold;
+    }
+
+    .container {
+      max-width:1000px;
+      margin:auto;
+      background:white;
+      padding:20px;
+      border-radius:15px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .form {
+      display:grid;
+      grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
+      gap:10px;
+      margin-bottom:20px;
+    }
+
+    .form input {
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #ccc;
+    }
+
+    .form button {
+      background:#667eea;
+      color:white;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    .form button:hover { background:#5a67d8; }
+
+    .search {
+      margin-bottom:15px;
+    }
+
+    .search input {
+      width:100%;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #ccc;
+    }
+
+    table {
+      width:100%;
+      border-collapse:collapse;
+      overflow:hidden;
+      border-radius:10px;
+    }
+
+    th, td {
+      padding:10px;
+      text-align:center;
+      border-bottom:1px solid #eee;
+    }
+
+    th { background:#667eea; color:white; }
+
+    tr:hover { background:#f1f1f1; }
+
+    .btn {
+      padding:5px 10px;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
+      color:white;
+    }
+
+    .delete { background:red; }
+    .edit { background:orange; }
+
+    .stats {
+      margin-top:10px;
+      font-weight:bold;
+    }
+
+    @media(max-width:600px){
+      header{font-size:18px;}
+    }
+  </style>
+</head>
+<body>
+
+<header>📚 Perpustakaan SMKN 1 Gedongtataan</header>
+
+<div class="container">
+
+  <!-- FORM INPUT -->
+  <div class="form">
+    <input type="text" id="kode" placeholder="Kode Buku">
+    <input type="text" id="judul" placeholder="Judul Buku">
+    <input type="text" id="penulis" placeholder="Penulis">
+    <input type="text" id="penerbit" placeholder="Penerbit">
+    <input type="number" id="tahun" placeholder="Tahun">
+    <button onclick="tambahBuku()">Tambah Buku</button>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search">
+    <input type="text" id="cari" placeholder="🔍 Cari buku..." onkeyup="cariBuku()">
+  </div>
+
+  <!-- TABLE -->
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Kode</th>
+        <th>Judul</th>
+        <th>Penulis</th>
+        <th>Penerbit</th>
+        <th>Tahun</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="data"></tbody>
+  </table>
+
+  <div class="stats" id="total"></div>
+
+</div>
+
+<script>
+  let buku = JSON.parse(localStorage.getItem("buku")) || [];
+
+  function simpan() {
+    localStorage.setItem("buku", JSON.stringify(buku));
+  }
+
+  function tampil() {
+    let data = document.getElementById("data");
+    data.innerHTML = "";
+
+    buku.forEach((b, i) => {
+      data.innerHTML += `
+        <tr>
+          <td>${i+1}</td>
+          <td>${b.kode}</td>
+          <td>${b.judul}</td>
+          <td>${b.penulis}</td>
+          <td>${b.penerbit}</td>
+          <td>${b.tahun}</td>
+          <td>
+            <button class="btn delete" onclick="hapus(${i})">Hapus</button>
+          </td>
+        </tr>
+      `;
+    });
+
+    document.getElementById("total").innerText = "Total Buku: " + buku.length;
+  }
+
+  function tambahBuku() {
+    let kode = document.getElementById("kode").value;
+    let judul = document.getElementById("judul").value;
+    let penulis = document.getElementById("penulis").value;
+    let penerbit = document.getElementById("penerbit").value;
+    let tahun = document.getElementById("tahun").value;
+
+    if(!kode || !judul || !penulis || !penerbit || !tahun){
+      alert("Isi semua data!");
+      return;
+    }
+
+    buku.push({kode,judul,penulis,penerbit,tahun});
+    simpan();
+    tampil();
+
+    document.querySelectorAll(".form input").forEach(i=>i.value="");
+  }
+
+  function hapus(i){
+    if(confirm("Yakin hapus buku?")){
+      buku.splice(i,1);
+      simpan();
+      tampil();
+    }
+  }
+
+  function cariBuku(){
+    let keyword = document.getElementById("cari").value.toLowerCase();
+    let rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(r => {
+      let text = r.innerText.toLowerCase();
+      r.style.display = text.includes(keyword) ? "" : "none";
+    });
+  }
+
+  tampil();
+</script>
+
+</body>
+</html>
